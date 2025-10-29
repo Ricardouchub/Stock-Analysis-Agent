@@ -24,11 +24,14 @@ Personal research environment for exploring equities with a guardrailed AI assis
   
 ## Features
 - Streamlit front end backed by a LangGraph agent for tool orchestration (supports OpenAI or DeepSeek APIs).
-- Local-first cache: prices, features, news (Finnhub + optional IR RSS), and DuckDB warehouse.
+- Local-first cache with DuckDB warehouse fed by free-market data APIs:
+  - **Polygon** primary OHLCV source, with **Alpha Vantage** fallback via `scripts/ingest_prices.py`.
+  - **Finnhub** company news, fundamentals, and sector metrics; optional RSS feeds for IR announcements.
+  - **yfinance** available for ad-hoc retrievals (utility scripts), **FRED** reserved for macro (T-bill curve, CPI).
 - Indicator library via `pandas-ta` with validation using Great Expectations.
 - VectorBT-powered EMA crossover backtest with adaptive lookback and configurable trading costs.
-- Risk dashboard with color-coded metrics, sector-median valuation comparison, and news summaries with fallbacks.
-- Plotly trend chart with EMA overlays, support/resistance bands, event markers, and one-click PDF export.
+- Risk dashboard with color-coded metrics (volatility, beta, drawdown percentile) and sector-median valuation comparison.
+- Plotly trend chart with EMA overlays, dynamic support/resistance bands, event markers, and one-click PDF export.
 
 ## Quickstart
 1. Clone the repository and copy the environment template (supply either `OPENAI_API_KEY` or `DEEPSEEK_API_KEY`):
