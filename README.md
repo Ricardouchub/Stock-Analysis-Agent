@@ -121,3 +121,5 @@ This project is for educational use only. Market data may be delayed or incorrec
 
 ## Author
 **Ricardo Urdaneta**
+
+[LinkedIn](https://www.linkedin.com/in/ricardourdanetacastro/) | [GitHub](https://github.com/Ricardouchub)
