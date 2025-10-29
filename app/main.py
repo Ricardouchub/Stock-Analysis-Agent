@@ -16,6 +16,7 @@ from app.components import (
     render_risk_panel,
     render_sector_comparison,
 )
+from app.exporter import build_report_pdf
 from app.tools import ToolExecutionError
 
 LOG_DIR = Path(os.getenv("LOG_DIR", "./data/logs")).resolve()
@@ -156,6 +157,15 @@ def main() -> None:
         if llm_logs:
             st.subheader("LLM usage")
             st.json(llm_logs)
+
+        pdf_bytes = build_report_pdf(artifacts, st.session_state.get("followup_history", []))
+        file_label = f"{(snapshot or {}).get('ticker', ticker_input.strip().upper()) or 'report'}_analysis.pdf"
+        st.download_button(
+            "Export report (PDF)",
+            data=pdf_bytes,
+            file_name=file_label,
+            mime="application/pdf",
+        )
 
         if show_artifacts:
             st.subheader("Tool artifacts (debug)")
