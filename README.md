@@ -15,9 +15,9 @@
 ![FRED](https://img.shields.io/badge/FRED-API-2C3E50)
 
 
-A LangGraph-powered research AI Agent for exploring equities with an assistant focused on clarity and control.
-It analyzes locally cached market data, computes key technical indicators, highlights verified headlines, and runs quick rule-based backtests — all within a guardrailed reasoning flow.
-Built for insight, not directives — the agent never issues buy or sell recommendations.
+A LangGraph-powered research AI Agent for exploring equities with an assistant focused on real data and control.
+It analyzes locally cached market data, computes key technical indicators, highlights verified headlines, and runs quick rule-based backtests, all within a guardrailed reasoning flow.
+Built for insight and not directives — the agent never issues buy or sell recommendations.
 
 
   <img width="1000" src="img/nvidia_example.png" alt="Main"/>
