@@ -1,5 +1,21 @@
 # Decision-Support Stock Analysis Agent
 
+![Status](https://img.shields.io/badge/Status-Completed-2ECC71?logo=checkmarx&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Orchestration-7E57C2?logo=chainlink&logoColor=white)
+![LangChain_Core](https://img.shields.io/badge/LangChain-Core-2C3E50?logo=langchain&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-LLM-111111?logo=openai&logoColor=white)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-LLM-8A2BE2?logo=deepnote&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?logo=streamlit&logoColor=white)
+![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-FFF000?logo=duckdb&logoColor=000)
+![Pydantic](https://img.shields.io/badge/Pydantic-Validation-336791?logo=pydantic&logoColor=white)
+![yfinance](https://img.shields.io/badge/yfinance-Prices-2E7D32)
+![Polygon](https://img.shields.io/badge/Polygon-API-8E44AD)
+![Finnhub](https://img.shields.io/badge/Finnhub-API-0B8043)
+![FRED](https://img.shields.io/badge/FRED-API-2C3E50)
+
+
+
 Personal research environment for exploring equities with a guardrailed AI assistant. The agent reasons over locally cached data, computes technical indicators, highlights vetted headlines, and runs lightweight rule-based backtests. It never issues investment directives. Requires Python 3.12+.
 
 
