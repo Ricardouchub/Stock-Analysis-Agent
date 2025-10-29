@@ -1,7 +1,28 @@
 # Decision-Support Stock Analysis Agent
 
-Personal research environment for exploring equities with a guardrailed AI assistant. The agent reasons over locally cached data, computes technical indicators, highlights vetted headlines, and runs lightweight rule-based backtests. It never issues investment directives. Requires Python 3.12+.
+![Status](https://img.shields.io/badge/Status-Completed-2ECC71?logo=checkmarx&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Orchestration-7E57C2?logo=chainlink&logoColor=white)
+![LangChain_Core](https://img.shields.io/badge/LangChain-Core-2C3E50?logo=langchain&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-LLM-111111?logo=openai&logoColor=white)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-LLM-8A2BE2?logo=deepnote&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?logo=streamlit&logoColor=white)
+![DuckDB](https://img.shields.io/badge/DuckDB-OLAP-FFF000?logo=duckdb&logoColor=000)
+![Pydantic](https://img.shields.io/badge/Pydantic-Validation-336791?logo=pydantic&logoColor=white)
+![yfinance](https://img.shields.io/badge/yfinance-Prices-2E7D32)
+![Polygon](https://img.shields.io/badge/Polygon-API-8E44AD)
+![Finnhub](https://img.shields.io/badge/Finnhub-API-0B8043)
+![FRED](https://img.shields.io/badge/FRED-API-2C3E50)
 
+
+
+Personal research environment for exploring equities with a guardrailed AI assistant. The agent reasons over locally cached data, computes technical indicators, highlights vetted headlines, and runs lightweight rule-based backtests. It never issues investment directives.
+
+
+  <img width="1000" src="img/nvidia_example.png" alt="Main"/>
+
+  
+## Features
 - Streamlit front end backed by a LangGraph agent for tool orchestration (supports OpenAI or DeepSeek APIs).
 - Local-first cache: prices, features, news (Finnhub + optional IR RSS), and DuckDB warehouse.
 - Indicator library via `pandas-ta` with validation using Great Expectations.
@@ -16,26 +37,26 @@ Personal research environment for exploring equities with a guardrailed AI assis
    cd Stock-Analysis-Agent
    cp .env.example .env
    ```
-2. Install dependencies using `uv` (or `pip`):
+2. Install dependencies using `uv`:
    ```bash
    uv sync
    ```
 3. Ingest price history and build features for a ticker:
    ```bash
-   uv run python scripts/ingest_prices.py --ticker AAPL --start 2015-01-01 --end 2025-10-28
+   uv run python scripts/ingest_prices.py --ticker AAPL --start 2025-01-01 --end 2025-10-28
    uv run python scripts/build_features.py --ticker AAPL
    uv run python scripts/create_views.py
    ```
-   *Why per ticker?* Free API tiers (Polygon, Alpha Vantage, Finnhub) enforce tight rate limits. Running the scripts one ticker at a time keeps the project compliant with those limits and avoids noisy failures you’d see with bulk ingestion. Production-scale data pipelines would fan out in parallel, but this personal stack stays lean and polite to free endpoints.
 4. Launch the Streamlit UI:
    ```bash
    uv run streamlit run app/main.py
    ```
+>   *Why per ticker?* Free API tiers (Polygon, Alpha Vantage, Finnhub) enforce tight rate limits. Running the scripts one ticker at a time keeps the project compliant with those limits and avoids noisy failures you’d see with bulk ingestion. Production-scale data pipelines would fan out in parallel, but this personal stack stays lean and polite to free endpoints.
 
 ## Guardrails
 - Numbers quoted by the assistant must originate from cache or API outputs and include `(source, as_of)`.
 - Responses present pros, cons, and risks; the agent never says "buy" or "sell".
-- Cache-first design: if data is missing or stale, the UI surfaces actionable follow-ups.
+- If data is missing or stale, the UI surfaces actionable follow-ups.
 
 ## Example Questions
 
@@ -64,8 +85,6 @@ Personal research environment for exploring equities with a guardrailed AI assis
 - “How might the risk snapshot change for {T} if beta drifts above 1.2?”
 - “Given the sector comparison, what scenarios could close the valuation gap for {T}?”
 
-## Disclaimer
-This project is for educational use only. Market data may be delayed or incorrect. Backtests are not predictive. Taxes, fees, and slippage matter. You are responsible for your decisions.
 
 ## Repository Layout
 ```
@@ -97,5 +116,10 @@ Stock-Analysis-Agent/
 └── README.md                   # Project overview and usage notes
 ```
 
+## Disclaimer
+This project is for educational use only. Market data may be delayed or incorrect. Backtests are not predictive. Taxes, fees, and slippage matter. You are responsible for your decisions.
+
 ## Author
 **Ricardo Urdaneta**
+
+[LinkedIn](https://www.linkedin.com/in/ricardourdanetacastro/) | [GitHub](https://github.com/Ricardouchub)
