@@ -37,6 +37,7 @@ dependencies = [
     "feedparser",
     "great-expectations",
     "prefect",
+    "reportlab",
     "pytest>=8.4.2",
 ]
 
