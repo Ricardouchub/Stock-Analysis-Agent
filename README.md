@@ -10,8 +10,10 @@ Personal research environment for exploring equities with a guardrailed AI assis
 - Plotly trend chart with EMA overlays, support/resistance bands, event markers, and one-click PDF export.
 
 ## Quickstart
-1. Copy the environment template and fill in credentials (supply either `OPENAI_API_KEY` or `DEEPSEEK_API_KEY`):
+1. Clone the repository and copy the environment template (supply either `OPENAI_API_KEY` or `DEEPSEEK_API_KEY`):
    ```bash
+   git clone https://github.com/Ricardouchub/Stock-Analysis-Agent.git
+   cd Stock-Analysis-Agent
    cp .env.example .env
    ```
 2. Install dependencies using `uv` (or `pip`):
@@ -29,17 +31,6 @@ Personal research environment for exploring equities with a guardrailed AI assis
    ```bash
    uv run streamlit run app/main.py
    ```
-
-## Repository Layout
-```
-app/                 # Agent graph, tools, Streamlit UI, prompts, components
-scripts/             # CLI helpers for ingesting data, building features, backtests
-workflows/           # Prefect flows for scheduled refreshes
-expectations/        # Great Expectations suites
-data/                # Local cache (ignored by git)
-.env.example         # Required API keys and configuration
-pyproject.toml       # Dependency definitions
-```
 
 ## Guardrails
 - Numbers quoted by the assistant must originate from cache or API outputs and include `(source, as_of)`.
@@ -75,3 +66,36 @@ pyproject.toml       # Dependency definitions
 
 ## Disclaimer
 This project is for educational use only. Market data may be delayed or incorrect. Backtests are not predictive. Taxes, fees, and slippage matter. You are responsible for your decisions.
+
+## Repository Layout
+```
+Stock-Analysis-Agent/
+├── app/
+│   ├── agent_graph.py          # LangGraph workflow, routing, news summarizer
+│   ├── tools.py                # Data access, backtests, risk & sector helpers
+│   ├── main.py                 # Streamlit UI with follow-up chat and export
+│   ├── exporter.py             # PDF report generator (ReportLab)
+│   ├── components/
+│   │   ├── cards.py            # Metrics tiles (EMA, RSI, etc.)
+│   │   ├── chart.py            # Plotly chart with support/resistance overlays
+│   │   └── panels.py           # Risk badges and sector comparison table
+│   └── prompts/system.md       # System-level guardrails
+├── scripts/
+│   ├── ingest_prices.py        # Price downloader (Polygon/Alpha Vantage)
+│   ├── build_features.py       # Indicator builder (pandas-ta)
+│   ├── create_views.py         # DuckDB view bootstrap
+│   └── run_backtest.py         # CLI backtest entry point
+├── workflows/
+│   └── daily_prices.py         # Prefect flow for scheduled refresh
+├── expectations/
+│   └── prices_suite.yml        # Great Expectations validation suite
+├── data/                       # Local cache: parquet, DuckDB, logs (gitignored)
+├── tests/
+│   └── test_agent_graph.py     # Routing & ticker extraction tests
+├── .env.example                # API keys and configuration template
+├── pyproject.toml              # Project metadata & dependencies
+└── README.md                   # Project overview and usage notes
+```
+
+## Author
+**Ricardo Urdaneta**
