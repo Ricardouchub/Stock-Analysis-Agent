@@ -1,4 +1,5 @@
 from __future__ import annotations
+from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
@@ -14,6 +15,25 @@ def _format_number(value: Optional[float], digits: int = 2) -> str:
     return f"{value:.{digits}f}" if isinstance(value, (int, float)) else "NA"
 
 
+def _risk_badge(label: str, score: Optional[float], thresholds: Dict[str, float], invert: bool = False) -> str:
+    if not isinstance(score, (int, float)):
+        return f"{label}: <span style='background-color:#6c757d;color:white;padding:0.1rem 0.4rem;border-radius:0.4rem;'>NA</span>"
+    value = -score if invert else score
+    if value <= thresholds["green"]:
+        color = "#2ca02c"
+        text = "Low"
+    elif value <= thresholds["amber"]:
+        color = "#ff7f0e"
+        text = "Medium"
+    else:
+        color = "#d62728"
+        text = "High"
+    return (
+        f"{label}: <span style='background-color:{color};color:white;padding:0.1rem 0.4rem;"
+        f"border-radius:0.4rem;'>{text}</span>"
+    )
+
+
 def render_risk_panel(risk: Dict[str, Any]) -> None:
     if not risk:
         return
@@ -25,6 +45,14 @@ def render_risk_panel(risk: Dict[str, Any]) -> None:
         st.metric("Beta", _format_number(risk.get("beta")))
     with col3:
         st.metric("Drawdown", _format_percent(risk.get("current_drawdown")))
+
+    badges = [
+        _risk_badge("Volatility", risk.get("volatility_30d"), {"green": 0.20, "amber": 0.35}),
+        _risk_badge("Beta", risk.get("beta"), {"green": 0.9, "amber": 1.2}),
+        _risk_badge("Drawdown", risk.get("current_drawdown"), {"green": 0.10, "amber": 0.20}, invert=True),
+    ]
+    st.markdown(" &nbsp; ".join(badges), unsafe_allow_html=True)
+
     percentile = risk.get("drawdown_percentile")
     if isinstance(percentile, (int, float)):
         st.caption(f"Current drawdown percentile: {percentile:.0%}")
