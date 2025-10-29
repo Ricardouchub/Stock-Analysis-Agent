@@ -15,8 +15,9 @@
 ![FRED](https://img.shields.io/badge/FRED-API-2C3E50)
 
 
-
-Personal research environment for exploring equities with a guardrailed AI assistant. The agent reasons over locally cached data, computes technical indicators, highlights vetted headlines, and runs lightweight rule-based backtests. It never issues investment directives.
+A LangGraph-powered research AI Agent for exploring equities with an assistant focused on clarity and control.
+It analyzes locally cached market data, computes key technical indicators, highlights verified headlines, and runs quick rule-based backtests — all within a guardrailed reasoning flow.
+Built for insight, not directives — the agent never issues buy or sell recommendations.
 
 
   <img width="1000" src="img/nvidia_example.png" alt="Main"/>
