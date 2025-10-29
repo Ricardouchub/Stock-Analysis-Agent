@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import json
 import os
 import re
@@ -133,7 +134,14 @@ def tools_node(state: AgentState) -> AgentState:
 
     try:
         snapshot = get_price_snapshot(ticker)
-        artifacts["snapshot"] = snapshot.model_dump()
+        snapshot_dict = snapshot.model_dump()
+        artifacts["snapshot"] = snapshot_dict
+        last_close_ts = snapshot.last_close_ts
+        if last_close_ts.tzinfo is None:
+            last_close_ts = last_close_ts.replace(tzinfo=datetime.timezone.utc)
+        now_utc = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        age_days = (now_utc - last_close_ts.astimezone(datetime.timezone.utc)).total_seconds() / 86400
+        artifacts["needs_price_refresh"] = age_days > 2
     except ToolExecutionError as exc:
         _record_error(artifacts, "get_price_snapshot", str(exc))
 
@@ -348,6 +356,7 @@ def reason_node(state: AgentState) -> AgentState:
                 f"Artifacts (as JSON):\n{formatted_artifacts}\n"
                 "Respond with concise bullets listing pros, cons, and risks. "
                 "If data is missing, state what should be fetched next. "
+                "Only suggest refreshing price data if the artifacts include `\"needs_price_refresh\": true`. "
                 "After the bullets, include a short paragraph (2-3 sentences) that interprets the metrics, risk snapshot, sector comparison, and backtests shown in the UI."
             ),
         },
@@ -370,6 +379,7 @@ def summarize_news_node(state: AgentState) -> AgentState:
     artifacts = state.setdefault("artifacts", {})
     news_items = artifacts.get("news") or []
     if not news_items:
+        artifacts["news_summary"] = "No new filings or IR announcements in the last 7 days."
         return state
     try:
         llm = _get_llm()
