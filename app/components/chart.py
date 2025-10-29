@@ -12,6 +12,10 @@ def _prepare_dataframe(points: List[Dict[str, Any]]) -> pd.DataFrame:
         return pd.DataFrame()
     df = pd.DataFrame(points)
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
+    numeric_cols = ["close", "ema50", "ema200", "support", "resistance"]
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
     return df.dropna(subset=["timestamp"]).sort_values("timestamp")
 
 
@@ -56,6 +60,30 @@ def render_price_chart(chart: Dict[str, Any]) -> None:
             )
         )
 
+    if {"support", "resistance"}.issubset(df.columns):
+        fig.add_trace(
+            go.Scatter(
+                x=df["timestamp"],
+                y=df["resistance"],
+                mode="lines",
+                name="Resistance",
+                line=dict(color="rgba(214, 39, 40, 0.4)", width=0),
+                showlegend=True,
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=df["timestamp"],
+                y=df["support"],
+                mode="lines",
+                name="Support",
+                line=dict(color="rgba(31, 119, 180, 0.4)", width=0),
+                fill="tonexty",
+                hoverinfo="skip",
+                showlegend=True,
+            )
+        )
+
     if {"ema50", "ema200"}.issubset(df.columns):
         cross_up = (df["ema50"] > df["ema200"]) & (df["ema50"].shift(1) <= df["ema200"].shift(1))
         cross_down = (df["ema50"] < df["ema200"]) & (df["ema50"].shift(1) >= df["ema200"].shift(1))
@@ -88,4 +116,26 @@ def render_price_chart(chart: Dict[str, Any]) -> None:
         xaxis_title="Date",
         yaxis_title="Price",
     )
+
+    events = chart.get("events") or []
+    if events:
+        for event in events:
+            ts = pd.to_datetime(event.get("timestamp"), utc=True, errors="coerce")
+            price = event.get("price")
+            if pd.isna(ts) or price is None:
+                continue
+            color = "#8c564b" if event.get("type") == "support_touch" else "#9467bd"
+            name = "Support touch" if event.get("type") == "support_touch" else "Resistance touch"
+            fig.add_trace(
+                go.Scatter(
+                    x=[ts],
+                    y=[price],
+                    mode="markers",
+                    name=name,
+                    marker=dict(color=color, size=8, symbol="diamond"),
+                    hovertemplate=f"{name}<br>%{{x|%Y-%m-%d}}<br>%{{y:.2f}}<extra></extra>",
+                    showlegend=False,
+                )
+            )
+
     st.plotly_chart(fig, use_container_width=True)
