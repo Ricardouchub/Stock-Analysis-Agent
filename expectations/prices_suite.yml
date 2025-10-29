@@ -1,0 +1,22 @@
+expectation_suite_name: prices_suite
+expectations:
+  - expectation_type: expect_table_row_count_to_be_greater_than
+    kwargs:
+      value: 0
+  - expectation_type: expect_column_to_exist
+    kwargs:
+      column: timestamp
+  - expectation_type: expect_column_values_to_not_be_null
+    kwargs:
+      column: close
+  - expectation_type: expect_column_values_to_be_between
+    kwargs:
+      column: close
+      min_value: 0
+  - expectation_type: expect_column_values_to_be_between
+    kwargs:
+      column: volume
+      min_value: 0
+meta:
+  created_by: decision_support_agent
+  created_at: 2025-10-28

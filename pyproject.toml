@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stock-analysis-agent"
+version = "0.1.0"
+description = "Decision-support stock analysis agent for personal research."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{name = "Fabricio", email = "example@example.com"}]
+dependencies = [
+    "python-dotenv",
+    "duckdb",
+    "pandas>=2.2",
+    "numpy",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "streamlit",
+    "plotly",
+    "matplotlib",
+    "langgraph",
+    "langchain-openai",
+    "langchain-core",
+    "openai>=1.0,<2.0",
+    "httpx",
+    "vectorbt",
+    "ta",
+    "pandas-ta",
+    "polygon-api-client",
+    "finnhub-python",
+    "fredapi",
+    "requests",
+    "yfinance",
+    "beautifulsoup4",
+    "lxml",
+    "feedparser",
+    "great-expectations",
+    "prefect",
+    "pytest>=8.4.2",
+]
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+
+[tool.streamlit]
+server.headless = true
