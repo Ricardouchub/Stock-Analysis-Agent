@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Decision-support stock analysis agent for personal research."
 readme = "README.md"
 requires-python = ">=3.12"
-authors = [{name = "Fabricio", email = "example@example.com"}]
+authors = [{name = "Ricardouchub", email = "ricardourdanetacastro@gmail.com"}]
 dependencies = [
     "python-dotenv",
     "duckdb",
@@ -48,6 +48,10 @@ packages = ["app"]
 package = true
 
 [tool.uv.sources]
+
+[project.urls]
+Homepage = "https://github.com/Ricardouchub"
+Repository = "https://github.com/Ricardouchub/Stock-Analysis-Agent"
 
 [tool.streamlit]
 server.headless = true
