@@ -78,6 +78,7 @@ class ChartData(BaseModel):
     as_of: datetime
     source: str
     points: List[Dict[str, Any]]
+    events: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 def _select_latest_parquet(path: Path) -> Path:
@@ -234,8 +235,18 @@ def backtest_sma_cross(ticker: str, costs_bps: float = 5.0) -> Dict[str, Any]:
         raise ToolExecutionError(f"No data available to backtest {ticker}.")
 
     close = _load_feature_series(df, "close")
+
+    def _ensure_ema(series: pd.Series, span: int) -> pd.Series:
+        if series.empty:
+            return series
+        return series.ewm(span=span, adjust=False).mean()
+
     ema50 = _load_feature_series(df, "ema50")
     ema200 = _load_feature_series(df, "ema200")
+
+    if ema50.empty or ema200.empty:
+        ema50 = _ensure_ema(close, 50)
+        ema200 = _ensure_ema(close, 200)
 
     if ema50.empty or ema200.empty:
         raise ToolExecutionError(
@@ -243,27 +254,48 @@ def backtest_sma_cross(ticker: str, costs_bps: float = 5.0) -> Dict[str, Any]:
             "Run the feature builder first."
         )
 
-    entries = (ema50 > ema200) & (ema50.shift(1) <= ema200.shift(1))
-    exits = (ema50 < ema200) & (ema50.shift(1) >= ema200.shift(1))
+    windows = [756, None]  # approx 3 years, then full history
+    last_portfolio = None
+    last_slice = close
+    trades = 0
 
-    portfolio = vbt.Portfolio.from_signals(
-        close,
-        entries=entries.fillna(False),
-        exits=exits.fillna(False),
-        fees=costs_bps / 10000.0,
-        slippage=0.0005,
-        freq="1D",
-    )
+    for window in windows:
+        if window and len(close) > window:
+            close_slice = close.tail(window)
+            ema50_slice = ema50.tail(window)
+            ema200_slice = ema200.tail(window)
+        else:
+            close_slice = close
+            ema50_slice = ema50
+            ema200_slice = ema200
+
+        entries = (ema50_slice > ema200_slice) & (ema50_slice.shift(1) <= ema200_slice.shift(1))
+        exits = (ema50_slice < ema200_slice) & (ema50_slice.shift(1) >= ema200_slice.shift(1))
+
+        portfolio = vbt.Portfolio.from_signals(
+            close_slice,
+            entries=entries.fillna(False),
+            exits=exits.fillna(False),
+            fees=costs_bps / 10000.0,
+            slippage=0.0005,
+            freq="1D",
+        )
+        trades = int(portfolio.trades.count())
+        last_portfolio = portfolio
+        last_slice = close_slice
+        if trades > 0 or window is None:
+            break
 
     stats = {
         "ticker": ticker,
-        "start": close.index.min().date().isoformat() if hasattr(close.index.min(), "date") else str(close.index.min()),
-        "end": close.index.max().date().isoformat() if hasattr(close.index.max(), "date") else str(close.index.max()),
-        "cagr": float(portfolio.annualized_return()),
-        "sharpe": float(portfolio.sharpe_ratio()),
-        "max_drawdown": float(portfolio.max_drawdown()),
-        "trades": int(portfolio.trades.count()),
+        "start": last_slice.index.min().date().isoformat() if hasattr(last_slice.index.min(), "date") else str(last_slice.index.min()),
+        "end": last_slice.index.max().date().isoformat() if hasattr(last_slice.index.max(), "date") else str(last_slice.index.max()),
+        "cagr": float(last_portfolio.annualized_return()) if last_portfolio else 0.0,
+        "sharpe": float(last_portfolio.sharpe_ratio()) if last_portfolio else 0.0,
+        "max_drawdown": float(last_portfolio.max_drawdown()) if last_portfolio else 0.0,
+        "trades": trades,
         "costs_bps": float(costs_bps),
+        "window_days": len(last_slice),
     }
     return stats
 
@@ -427,6 +459,33 @@ def get_sector_comparison(ticker: str) -> SectorComparison:
 
 def load_chart_data(ticker: str, periods: int = 260) -> ChartData:
     frame = _load_chart_frame(ticker, periods=periods)
+    frame = frame.copy()
+    frame["support"] = frame["close"].rolling(window=20, min_periods=5).min()
+    frame["resistance"] = frame["close"].rolling(window=20, min_periods=5).max()
+    frame["support"] = frame["support"].where(frame["support"].notna())
+    frame["resistance"] = frame["resistance"].where(frame["resistance"].notna())
+    events: List[Dict[str, Any]] = []
+    if {"support", "resistance"}.issubset(frame.columns):
+        recent = frame.tail(120)
+        recent_support = (recent["close"] <= recent["support"] * 1.001) & recent["support"].notna()
+        recent_resistance = (recent["close"] >= recent["resistance"] * 0.999) & recent["resistance"].notna()
+        for _, row in recent.loc[recent_support].iterrows():
+            events.append(
+                {
+                    "type": "support_touch",
+                    "timestamp": row["timestamp"].isoformat(),
+                    "price": row["close"],
+                }
+            )
+        for _, row in recent.loc[recent_resistance].iterrows():
+            events.append(
+                {
+                    "type": "resistance_touch",
+                    "timestamp": row["timestamp"].isoformat(),
+                    "price": row["close"],
+                }
+            )
+
     rows = []
     for _, row in frame.iterrows():
         rows.append(
@@ -435,6 +494,8 @@ def load_chart_data(ticker: str, periods: int = 260) -> ChartData:
                 "close": row.get("close"),
                 "ema50": row.get("ema50"),
                 "ema200": row.get("ema200"),
+                "support": row.get("support"),
+                "resistance": row.get("resistance"),
             }
         )
     return ChartData(
@@ -442,6 +503,7 @@ def load_chart_data(ticker: str, periods: int = 260) -> ChartData:
         as_of=datetime.utcnow(),
         source="parquet/features",
         points=rows,
+        events=events,
     )
 
 
