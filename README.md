@@ -90,7 +90,7 @@ Built for insight and not directives — the agent never issues buy or sell reco
 - “Given the sector comparison, what scenarios could close the valuation gap for {T}?”
 
 
-## Repository Layout
+## Repository
 ```
 Stock-Analysis-Agent/
 ├── app/
@@ -121,7 +121,7 @@ Stock-Analysis-Agent/
 ```
 
 ## Disclaimer
-This project is for educational use only. Market data may be delayed or incorrect. Backtests are not predictive. Taxes, fees, and slippage matter. You are responsible for your decisions.
+This project is for educational use only. Market data may be delayed or incorrect. Backtests are not predictive. Taxes, fees, and slippage matter.
 
 ## Author
 **Ricardo Urdaneta**
